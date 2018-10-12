@@ -1,12 +1,12 @@
 [package]
 name = "url-prefix"
-version = "0.1.0"
+version = "1.0.0"
 authors = ["Magic Len <len@magiclen.org>"]
 repository = "https://github.com/magiclen/url-prefix"
 homepage = "https://magiclen.org/url-prefix"
 keywords = ["url", "prefix", "http", "https", "ftp"]
 categories = ["value-formatting"]
-description= "A library for formatting a prefix for URLs"
+description= "A library for creating URL prefix strings."
 readme = "README.md"
 license = "MIT"
 

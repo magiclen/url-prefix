@@ -2,6 +2,7 @@ URL Prefix
 ====================
 
 [![Build Status](https://travis-ci.org/magiclen/url-prefix.svg?branch=master)](https://travis-ci.org/magiclen/url-prefix)
+[![Build status](https://ci.appveyor.com/api/projects/status/um6hn4u0122dfmvy/branch/master?svg=true)](https://ci.appveyor.com/project/magiclen/url-prefix/branch/master)
 
 This crate can be used to create URL prefix strings by inputting a protocol, a domain, a port number and a path.
 
