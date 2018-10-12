@@ -58,7 +58,7 @@ And the `create_prefix_with_validated_domain` is available.
 
 For example,
 
-```rust,ignore
+```rust
 extern crate url_prefix;
 
 let user_input = url_prefix::validators::domain::DomainLocalhostableWithPort::from_str("magiclen.org:443").unwrap();
