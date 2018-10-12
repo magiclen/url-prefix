@@ -7,15 +7,15 @@
 //! ```rust,ignore
 //! let mut url_prefix = String::new();
 //! if is_https {
-//! url_prefix.push_str("https://");
+//!     url_prefix.push_str("https://");
 //! } else {
-//! url_prefix.push_str("http://");
+//!     url_prefix.push_str("http://");
 //! }
 //! url_prefix.push_str(domain);
 //!
 //! if is_https && port != 443 || !is_https && port != 80{
-//! url_prefix.push_str(":");
-//! url_prefix.push_str(&port.to_string());
+//!     url_prefix.push_str(":");
+//!     url_prefix.push_str(&port.to_string());
 //! }
 //! ```
 //!
