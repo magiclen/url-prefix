@@ -153,7 +153,7 @@ pub fn create_prefix(protocol: Protocol, domain: &str, port: Option<u16>, path: 
 }
 
 #[cfg(feature = "validator")]
-/// Create a safe URL prefix string.
+/// Create a safe URL prefix string. This API may be changed in the future.
 pub fn create_prefix_with_validated_domain(protocol: Protocol, domain: &Domain, path: Option<&str>) -> String {
     let port = domain.get_port();
 
