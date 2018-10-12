@@ -91,6 +91,16 @@ macro_rules! impl_protocol {
                 }
             }
 
+            pub fn get_default_from_str(s: &str) -> Option<Self>{
+                let lowered_case = s.to_lowercase();
+                match lowered_case.as_str() {
+                    $(
+                        $name => Some(Protocol::$protocol),
+                    )+
+                    _ => None
+                }
+            }
+
             pub fn get_default_port(&self) -> u16 {
                 match self {
                     $(
