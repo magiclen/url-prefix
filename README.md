@@ -47,7 +47,7 @@ assert_eq!("https://magiclen.org:8100/url-prefix", prefix);
 
 `Validators` is a crate which can help you validate user input, in order to create a safe URL prefix.
 
-To use with `Validators` support, you have to enable **validator** feature for this crate.
+To use with `Validators` support, you have to enable the **validator** feature for this crate.
 
 ```toml
 [dependencies.url-prefix]
