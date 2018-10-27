@@ -54,7 +54,7 @@ To use with `Validators` support, you have to enable the **validator** feature f
 version = "*"
 features = ["validator"]
 ```
-And the `create_prefix_with_validated_domain` function is available.
+And the `create_prefix_with_validated_domain`, `create_prefix_with_validated_ipv4`, `create_prefix_with_validated_ipv6`, `create_prefix_with_validated_host` functions are available.
 
 For example,
 

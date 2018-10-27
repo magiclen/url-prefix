@@ -49,7 +49,7 @@
 //! version = "*"
 //! features = ["validator"]
 //! ```
-//! And the `create_prefix_with_validated_domain` is available.
+//! And the `create_prefix_with_validated_domain`, `create_prefix_with_validated_ipv4`, `create_prefix_with_validated_ipv6`, `create_prefix_with_validated_host` functions are available.
 //!
 //! For example,
 //!
@@ -68,6 +68,15 @@ pub extern crate validators;
 
 #[cfg(feature = "validator")]
 use validators::domain::Domain;
+
+#[cfg(feature = "validator")]
+use validators::host::Host;
+
+#[cfg(feature = "validator")]
+use validators::ipv4::IPv4;
+
+#[cfg(feature = "validator")]
+use validators::ipv6::IPv6;
 
 macro_rules! impl_protocol {
     ( $($protocol:ident, $name:expr, $port:expr), * ) => {
@@ -153,13 +162,51 @@ pub fn create_prefix(protocol: Protocol, domain: &str, port: Option<u16>, path: 
 }
 
 #[cfg(feature = "validator")]
-/// Create a safe URL prefix string. This API may be changed in the future.
+/// Create a safe URL prefix string.
 pub fn create_prefix_with_validated_domain(protocol: Protocol, domain: &Domain, path: Option<&str>) -> String {
     let port = domain.get_port();
 
     let domain = domain.get_full_domain_without_port();
 
     create_prefix(protocol, domain, port, path)
+}
+
+#[cfg(feature = "validator")]
+/// Create a safe URL prefix string.
+pub fn create_prefix_with_validated_ipv4(protocol: Protocol, ipv4: &IPv4, path: Option<&str>) -> String {
+    let port = ipv4.get_port();
+
+    let ipv4 = ipv4.get_full_ipv4_without_port();
+
+    create_prefix(protocol, ipv4, port, path)
+}
+
+#[cfg(feature = "validator")]
+/// Create a safe URL prefix string.
+pub fn create_prefix_with_validated_ipv6(protocol: Protocol, ipv6: &IPv6, path: Option<&str>) -> String {
+    let port = ipv6.get_port();
+
+    let ipv6 = ipv6.get_full_ipv6_without_port();
+
+    let ipv6 = format!("[{}]", ipv6);
+
+    create_prefix(protocol, &ipv6, port, path)
+}
+
+#[cfg(feature = "validator")]
+/// Create a safe URL prefix string.
+pub fn create_prefix_with_validated_host(protocol: Protocol, host: &Host, path: Option<&str>) -> String {
+    match host {
+        Host::Domain(domain) => {
+            create_prefix_with_validated_domain(protocol, domain, path)
+        }
+        Host::IPv4(ipv4) => {
+            create_prefix_with_validated_ipv4(protocol, ipv4, path)
+        }
+        Host::IPv6(ipv6) => {
+            create_prefix_with_validated_ipv6(protocol, ipv6, path)
+        }
+    }
 }
 
 #[cfg(test)]
@@ -251,5 +298,35 @@ mod tests {
         let prefix = create_prefix_with_validated_domain(Protocol::HTTPS, user_input.as_domain(), Some("url-prefix"));
 
         assert_eq!("https://magiclen.org/url-prefix", prefix);
+    }
+
+    #[cfg(feature = "validator")]
+    #[test]
+    fn create_prefix_with_validated_ipv4_lv4() {
+        let user_input = validators::ipv4::IPv4LocalableWithPort::from_str("127.0.0.1:443").unwrap();
+
+        let prefix = create_prefix_with_validated_ipv4(Protocol::HTTPS, user_input.as_ipv4(), Some("url-prefix"));
+
+        assert_eq!("https://127.0.0.1/url-prefix", prefix);
+    }
+
+    #[cfg(feature = "validator")]
+    #[test]
+    fn create_prefix_with_validated_ipv6_lv4() {
+        let user_input = validators::ipv6::IPv6LocalableWithPort::from_str("[0000:0000:0000:0000:0000:0000:370:7348]:443").unwrap();
+
+        let prefix = create_prefix_with_validated_ipv6(Protocol::HTTPS, user_input.as_ipv6(), Some("url-prefix"));
+
+        assert_eq!("https://[0000:0000:0000:0000:0000:0000:370:7348]/url-prefix", prefix);
+    }
+
+    #[cfg(feature = "validator")]
+    #[test]
+    fn create_prefix_with_validated_host_lv4() {
+        let user_input = validators::host::HostLocalable::from_str("127.0.0.1:443").unwrap();
+
+        let prefix = create_prefix_with_validated_host(Protocol::HTTPS, user_input.as_host(), Some("url-prefix"));
+
+        assert_eq!("https://127.0.0.1/url-prefix", prefix);
     }
 }
