@@ -78,6 +78,9 @@ use validators::ipv4::IPv4;
 #[cfg(feature = "validator")]
 use validators::ipv6::IPv6;
 
+#[cfg(feature = "validator")]
+use validators::http_url::HttpUrlLocalableWithProtocol;
+
 macro_rules! impl_protocol {
     ( $($protocol:ident, $name:expr, $port:expr), * ) => {
         /// A set of protocols for URLs.
@@ -209,6 +212,18 @@ pub fn create_prefix_with_validated_host(protocol: Protocol, host: &Host, path: 
     }
 }
 
+#[cfg(feature = "validator")]
+/// Create a safe URL prefix string.
+pub fn create_prefix_with_validated_http_url(http_url: &HttpUrlLocalableWithProtocol) -> String {
+    let protocol = if http_url.is_https() {
+        Protocol::HTTPS
+    } else {
+        Protocol::HTTP
+    };
+
+    create_prefix_with_validated_host(protocol, http_url.get_host(), http_url.get_path())
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -326,6 +341,16 @@ mod tests {
         let user_input = validators::host::HostLocalable::from_str("127.0.0.1:443").unwrap();
 
         let prefix = create_prefix_with_validated_host(Protocol::HTTPS, user_input.as_host(), Some("url-prefix"));
+
+        assert_eq!("https://127.0.0.1/url-prefix", prefix);
+    }
+
+    #[cfg(feature = "validator")]
+    #[test]
+    fn create_prefix_with_validated_http_url_lv4() {
+        let user_input = HttpUrlLocalableWithProtocol::from_str("https://127.0.0.1:443/url-prefix").unwrap();
+
+        let prefix = create_prefix_with_validated_http_url(&user_input);
 
         assert_eq!("https://127.0.0.1/url-prefix", prefix);
     }
