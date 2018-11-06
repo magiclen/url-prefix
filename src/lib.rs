@@ -81,6 +81,9 @@ use validators::ipv6::IPv6;
 #[cfg(feature = "validator")]
 use validators::http_url::HttpUrlLocalableWithProtocol;
 
+#[cfg(feature = "validator")]
+use validators::http_ftp_url::HttpFtpUrlLocalableWithProtocol;
+
 macro_rules! impl_protocol {
     ( $($protocol:ident, $name:expr, $port:expr), * ) => {
         /// A set of protocols for URLs.
@@ -224,6 +227,20 @@ pub fn create_prefix_with_validated_http_url(http_url: &HttpUrlLocalableWithProt
     create_prefix_with_validated_host(protocol, http_url.get_host(), http_url.get_path())
 }
 
+#[cfg(feature = "validator")]
+/// Create a safe URL prefix string.
+pub fn create_prefix_with_validated_http_ftp_url(http_ftp_url: &HttpFtpUrlLocalableWithProtocol) -> String {
+    let protocol = if http_ftp_url.is_https() {
+        Protocol::HTTPS
+    } else if http_ftp_url.is_http() {
+        Protocol::HTTP
+    } else {
+        Protocol::FTP
+    };
+
+    create_prefix_with_validated_host(protocol, http_ftp_url.get_host(), http_ftp_url.get_path())
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -353,5 +370,15 @@ mod tests {
         let prefix = create_prefix_with_validated_http_url(&user_input);
 
         assert_eq!("https://127.0.0.1/url-prefix", prefix);
+    }
+
+    #[cfg(feature = "validator")]
+    #[test]
+    fn create_prefix_with_validated_http_ftp_url_lv4() {
+        let user_input = HttpFtpUrlLocalableWithProtocol::from_str("ftp://127.0.0.1:21/url-prefix").unwrap();
+
+        let prefix = create_prefix_with_validated_http_ftp_url(&user_input);
+
+        assert_eq!("ftp://127.0.0.1/url-prefix", prefix);
     }
 }
