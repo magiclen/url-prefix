@@ -1,6 +1,6 @@
 [package]
 name = "url-prefix"
-version = "1.2.1"
+version = "1.2.2"
 authors = ["Magic Len <len@magiclen.org>"]
 repository = "https://github.com/magiclen/url-prefix"
 homepage = "https://magiclen.org/url-prefix"
@@ -15,7 +15,7 @@ travis-ci = { repository = "magiclen/url-prefix", branch = "master" }
 appveyor = { repository = "magiclen/url-prefix", branch = "master", service = "github" }
 
 [dependencies]
-validators = { version = "0.17", optional = true }
+validators = { version = "0.18", optional = true }
 
 [features]
 validator = ["validators"]
