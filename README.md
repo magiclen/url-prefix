@@ -6,9 +6,9 @@ URL Prefix
 
 This crate can be used to create URL prefix strings by inputting a protocol, a domain, a port number and a path.
 
-## Why You Need This?
+## Why We Need This?
 
-Sometimes your web application is run on different protocols(HTTP/HTTPS) and domains. And it is boring to write some code like below to format a URL:
+Sometimes our web applications are run on different protocols(HTTP/HTTPS) and domains. And it is boring to write some code like below to format a URL:
 
 ```rust
 let mut url_prefix = String::new();
@@ -25,7 +25,7 @@ if is_https && port != 443 || !is_https && port != 80{
 }
 ```
 
-Instead, you can easily use this crate to create URL prefix strings. For examples,
+Instead, we can easily use this crate to create URL prefix strings. For examples,
 
 ```rust
 extern crate url_prefix;
