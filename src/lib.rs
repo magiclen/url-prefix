@@ -25,7 +25,7 @@ Instead, we can easily use this crate to create URL prefix strings. For examples
 ```rust
 extern crate url_prefix;
 
-let prefix = url_prefix::create_prefix(url_prefix::Protocol::HTTPS, "magiclen.org", None, None);
+let prefix = url_prefix::create_prefix(url_prefix::Protocol::HTTPS, "magiclen.org", None, None::<String>);
 
 assert_eq!("https://magiclen.org", prefix);
 ```
@@ -146,10 +146,10 @@ impl_protocol!(
 );
 
 /// Create a URL prefix string.
-pub fn create_prefix(protocol: Protocol, domain: &str, port: Option<u16>, path: Option<&str>) -> String {
+pub fn create_prefix<S: AsRef<str>, P:AsRef<str>>(protocol: Protocol, domain: S, port: Option<u16>, path: Option<P>) -> String {
     let protocol_name = protocol.get_name();
 
-    let mut prefix = format!("{}://{}", protocol_name, domain);
+    let mut prefix = format!("{}://{}", protocol_name, domain.as_ref());
 
     if let Some(port) = port {
         let protocol_port = protocol.get_default_port();
@@ -160,10 +160,11 @@ pub fn create_prefix(protocol: Protocol, domain: &str, port: Option<u16>, path: 
     }
 
     if let Some(path) = path {
+        let path = path.as_ref();
         if !path.starts_with("/") {
             prefix.push('/');
         }
-        prefix.push_str(&path);
+        prefix.push_str(path);
     }
 
     prefix
@@ -171,7 +172,7 @@ pub fn create_prefix(protocol: Protocol, domain: &str, port: Option<u16>, path: 
 
 #[cfg(feature = "validator")]
 /// Create a safe URL prefix string.
-pub fn create_prefix_with_validated_domain(protocol: Protocol, domain: &Domain, path: Option<&str>) -> String {
+pub fn create_prefix_with_validated_domain<P: AsRef<str>>(protocol: Protocol, domain: &Domain, path: Option<P>) -> String {
     let port = domain.get_port();
 
     let domain = domain.get_full_domain_without_port();
@@ -181,7 +182,7 @@ pub fn create_prefix_with_validated_domain(protocol: Protocol, domain: &Domain, 
 
 #[cfg(feature = "validator")]
 /// Create a safe URL prefix string.
-pub fn create_prefix_with_validated_ipv4(protocol: Protocol, ipv4: &IPv4, path: Option<&str>) -> String {
+pub fn create_prefix_with_validated_ipv4<P: AsRef<str>>(protocol: Protocol, ipv4: &IPv4, path: Option<P>) -> String {
     let port = ipv4.get_port();
 
     let ipv4 = ipv4.get_full_ipv4_without_port();
@@ -191,7 +192,7 @@ pub fn create_prefix_with_validated_ipv4(protocol: Protocol, ipv4: &IPv4, path: 
 
 #[cfg(feature = "validator")]
 /// Create a safe URL prefix string.
-pub fn create_prefix_with_validated_ipv6(protocol: Protocol, ipv6: &IPv6, path: Option<&str>) -> String {
+pub fn create_prefix_with_validated_ipv6<P: AsRef<str>>(protocol: Protocol, ipv6: &IPv6, path: Option<P>) -> String {
     let port = ipv6.get_port();
 
     let ipv6 = ipv6.get_full_ipv6_without_port();
@@ -203,7 +204,7 @@ pub fn create_prefix_with_validated_ipv6(protocol: Protocol, ipv6: &IPv6, path: 
 
 #[cfg(feature = "validator")]
 /// Create a safe URL prefix string.
-pub fn create_prefix_with_validated_host(protocol: Protocol, host: &Host, path: Option<&str>) -> String {
+pub fn create_prefix_with_validated_host<P: AsRef<str>>(protocol: Protocol, host: &Host, path: Option<P>) -> String {
     match host {
         Host::Domain(domain) => {
             create_prefix_with_validated_domain(protocol, domain, path)
