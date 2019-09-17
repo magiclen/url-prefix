@@ -139,14 +139,15 @@ macro_rules! impl_protocol {
     };
 }
 
-impl_protocol!(
-    HTTP, "http", 80,
-    HTTPS, "https", 443,
-    FTP, "ftp", 21
-);
+impl_protocol!(HTTP, "http", 80, HTTPS, "https", 443, FTP, "ftp", 21);
 
 /// Create a URL prefix string.
-pub fn create_prefix<S: AsRef<str>, P:AsRef<str>>(protocol: Protocol, domain: S, port: Option<u16>, path: Option<P>) -> String {
+pub fn create_prefix<S: AsRef<str>, P: AsRef<str>>(
+    protocol: Protocol,
+    domain: S,
+    port: Option<u16>,
+    path: Option<P>,
+) -> String {
     let protocol_name = protocol.get_name();
 
     let mut prefix = format!("{}://{}", protocol_name, domain.as_ref());
@@ -161,7 +162,7 @@ pub fn create_prefix<S: AsRef<str>, P:AsRef<str>>(protocol: Protocol, domain: S,
 
     if let Some(path) = path {
         let path = path.as_ref();
-        if !path.starts_with("/") {
+        if !path.starts_with('/') {
             prefix.push('/');
         }
         prefix.push_str(path);
@@ -172,7 +173,11 @@ pub fn create_prefix<S: AsRef<str>, P:AsRef<str>>(protocol: Protocol, domain: S,
 
 #[cfg(feature = "validator")]
 /// Create a safe URL prefix string.
-pub fn create_prefix_with_validated_domain<P: AsRef<str>>(protocol: Protocol, domain: &Domain, path: Option<P>) -> String {
+pub fn create_prefix_with_validated_domain<P: AsRef<str>>(
+    protocol: Protocol,
+    domain: &Domain,
+    path: Option<P>,
+) -> String {
     let port = domain.get_port();
 
     let domain = domain.get_full_domain_without_port();
@@ -182,7 +187,11 @@ pub fn create_prefix_with_validated_domain<P: AsRef<str>>(protocol: Protocol, do
 
 #[cfg(feature = "validator")]
 /// Create a safe URL prefix string.
-pub fn create_prefix_with_validated_ipv4<P: AsRef<str>>(protocol: Protocol, ipv4: &IPv4, path: Option<P>) -> String {
+pub fn create_prefix_with_validated_ipv4<P: AsRef<str>>(
+    protocol: Protocol,
+    ipv4: &IPv4,
+    path: Option<P>,
+) -> String {
     let port = ipv4.get_port();
 
     let ipv4 = ipv4.get_full_ipv4_without_port();
@@ -192,7 +201,11 @@ pub fn create_prefix_with_validated_ipv4<P: AsRef<str>>(protocol: Protocol, ipv4
 
 #[cfg(feature = "validator")]
 /// Create a safe URL prefix string.
-pub fn create_prefix_with_validated_ipv6<P: AsRef<str>>(protocol: Protocol, ipv6: &IPv6, path: Option<P>) -> String {
+pub fn create_prefix_with_validated_ipv6<P: AsRef<str>>(
+    protocol: Protocol,
+    ipv6: &IPv6,
+    path: Option<P>,
+) -> String {
     let port = ipv6.get_port();
 
     let ipv6 = ipv6.get_full_ipv6_without_port();
@@ -204,17 +217,15 @@ pub fn create_prefix_with_validated_ipv6<P: AsRef<str>>(protocol: Protocol, ipv6
 
 #[cfg(feature = "validator")]
 /// Create a safe URL prefix string.
-pub fn create_prefix_with_validated_host<P: AsRef<str>>(protocol: Protocol, host: &Host, path: Option<P>) -> String {
+pub fn create_prefix_with_validated_host<P: AsRef<str>>(
+    protocol: Protocol,
+    host: &Host,
+    path: Option<P>,
+) -> String {
     match host {
-        Host::Domain(domain) => {
-            create_prefix_with_validated_domain(protocol, domain, path)
-        }
-        Host::IPv4(ipv4) => {
-            create_prefix_with_validated_ipv4(protocol, ipv4, path)
-        }
-        Host::IPv6(ipv6) => {
-            create_prefix_with_validated_ipv6(protocol, ipv6, path)
-        }
+        Host::Domain(domain) => create_prefix_with_validated_domain(protocol, domain, path),
+        Host::IPv4(ipv4) => create_prefix_with_validated_ipv4(protocol, ipv4, path),
+        Host::IPv6(ipv6) => create_prefix_with_validated_ipv6(protocol, ipv6, path),
     }
 }
 
@@ -232,7 +243,9 @@ pub fn create_prefix_with_validated_http_url(http_url: &HttpUrlLocalableWithProt
 
 #[cfg(feature = "validator")]
 /// Create a safe URL prefix string.
-pub fn create_prefix_with_validated_http_ftp_url(http_ftp_url: &HttpFtpUrlLocalableWithProtocol) -> String {
+pub fn create_prefix_with_validated_http_ftp_url(
+    http_ftp_url: &HttpFtpUrlLocalableWithProtocol,
+) -> String {
     let protocol = if http_ftp_url.is_https() {
         Protocol::HTTPS
     } else if http_ftp_url.is_http() {
