@@ -1,5 +1,7 @@
 /*!
-This crate can be used to create URL prefix strings by inputting a protocol, a domain, a port number and a path.
+# URL Prefix
+
+This crate can be used to create URL prefix strings by inputting a protocol, a domain, a port number and a path without additional parsing.
 
 ## Why We Need This?
 
@@ -14,7 +16,7 @@ if is_https {
 }
 url_prefix.push_str(domain);
 
-if is_https && port != 443 || !is_https && port != 80{
+if is_https && port != 443 || !is_https && port != 80 {
     url_prefix.push_str(":");
     url_prefix.push_str(&port.to_string());
 }
@@ -37,59 +39,27 @@ let prefix = url_prefix::create_prefix(url_prefix::Protocol::HTTPS, "magiclen.or
 
 assert_eq!("https://magiclen.org:8100/url-prefix", prefix);
 ```
-
-## Validators Support
-
-`Validators` is a crate which can help you validate user input, in order to create a safe URL prefix.
-
-To use with `Validators` support, you have to enable the **validator** feature for this crate.
-
-
-```toml
-[dependencies.url-prefix]
-version = "*"
-features = ["validator"]
-```
-And the `create_prefix_with_validated_domain`, `create_prefix_with_validated_ipv4`, `create_prefix_with_validated_ipv6`, `create_prefix_with_validated_host` functions are available.
-
-For example,
-
-```rust,ignore
-extern crate url_prefix;
-
-let user_input = url_prefix::validators::domain::DomainLocalhostableWithPort::from_str("magiclen.org:443").unwrap();
-
-let prefix = url_prefix::create_prefix_with_validated_domain(url_prefix::Protocol::HTTPS, user_input.as_domain(), Some("url-prefix"));
-
-assert_eq!("https://magiclen.org/url-prefix", prefix);
-```
 */
 
-#[cfg(feature = "validator")]
-pub extern crate validators;
+#![no_std]
 
-#[cfg(feature = "validator")]
-use validators::domain::Domain;
+#[macro_use]
+extern crate alloc;
 
-#[cfg(feature = "validator")]
-use validators::host::Host;
+extern crate cow_utils;
+extern crate slash_formatter;
 
-#[cfg(feature = "validator")]
-use validators::ipv4::IPv4;
+use core::fmt::Write;
 
-#[cfg(feature = "validator")]
-use validators::ipv6::IPv6;
+use alloc::string::String;
 
-#[cfg(feature = "validator")]
-use validators::http_url::HttpUrlLocalableWithProtocol;
-
-#[cfg(feature = "validator")]
-use validators::http_ftp_url::HttpFtpUrlLocalableWithProtocol;
+use cow_utils::CowUtils;
 
 macro_rules! impl_protocol {
-    ( $($protocol:ident, $name:expr, $port:expr), * ) => {
+    ( $($protocol:ident, $name:expr, $port:expr); * $(;)* ) => {
         /// A set of protocols for URLs.
-        pub enum Protocol{
+        #[derive(Debug, Clone)]
+        pub enum Protocol {
             $(
                 $protocol,
             )+
@@ -98,19 +68,10 @@ macro_rules! impl_protocol {
         }
 
         impl Protocol{
-            pub fn get_default_from_string(s: String) -> Option<Self>{
-                let lowered_case = s.to_lowercase();
-                match lowered_case.as_str() {
-                    $(
-                        $name => Some(Protocol::$protocol),
-                    )+
-                    _ => None
-                }
-            }
+            pub fn get_default_from_str<S: AsRef<str>>(s: S) -> Option<Self>{
+                let lowered_case = s.as_ref().cow_to_lowercase();
 
-            pub fn get_default_from_str(s: &str) -> Option<Self>{
-                let lowered_case = s.to_lowercase();
-                match lowered_case.as_str() {
+                match lowered_case.as_ref() {
                     $(
                         $name => Some(Protocol::$protocol),
                     )+
@@ -139,7 +100,13 @@ macro_rules! impl_protocol {
     };
 }
 
-impl_protocol!(HTTP, "http", 80, HTTPS, "https", 443, FTP, "ftp", 21);
+impl_protocol! {
+    HTTP, "http", 80;
+    HTTPS, "https", 443;
+    FTP, "ftp", 21;
+    WS, "ws", 80;
+    WSS, "wss", 443;
+}
 
 /// Create a URL prefix string.
 pub fn create_prefix<S: AsRef<str>, P: AsRef<str>>(
@@ -155,104 +122,15 @@ pub fn create_prefix<S: AsRef<str>, P: AsRef<str>>(
     if let Some(port) = port {
         let protocol_port = protocol.get_default_port();
         if port != protocol_port {
-            prefix.push(':');
-            prefix.push_str(&port.to_string());
+            prefix.write_fmt(format_args!(":{}", port)).unwrap();
         }
     }
 
     if let Some(path) = path {
         let path = path.as_ref();
-        if !path.starts_with('/') {
-            prefix.push('/');
-        }
-        prefix.push_str(path);
+
+        slash_formatter::concat_with_slash_in_place(&mut prefix, path);
     }
 
     prefix
-}
-
-#[cfg(feature = "validator")]
-/// Create a safe URL prefix string.
-pub fn create_prefix_with_validated_domain<P: AsRef<str>>(
-    protocol: Protocol,
-    domain: &Domain,
-    path: Option<P>,
-) -> String {
-    let port = domain.get_port();
-
-    let domain = domain.get_full_domain_without_port();
-
-    create_prefix(protocol, domain, port, path)
-}
-
-#[cfg(feature = "validator")]
-/// Create a safe URL prefix string.
-pub fn create_prefix_with_validated_ipv4<P: AsRef<str>>(
-    protocol: Protocol,
-    ipv4: &IPv4,
-    path: Option<P>,
-) -> String {
-    let port = ipv4.get_port();
-
-    let ipv4 = ipv4.get_full_ipv4_without_port();
-
-    create_prefix(protocol, ipv4, port, path)
-}
-
-#[cfg(feature = "validator")]
-/// Create a safe URL prefix string.
-pub fn create_prefix_with_validated_ipv6<P: AsRef<str>>(
-    protocol: Protocol,
-    ipv6: &IPv6,
-    path: Option<P>,
-) -> String {
-    let port = ipv6.get_port();
-
-    let ipv6 = ipv6.get_full_ipv6_without_port();
-
-    let ipv6 = format!("[{}]", ipv6);
-
-    create_prefix(protocol, &ipv6, port, path)
-}
-
-#[cfg(feature = "validator")]
-/// Create a safe URL prefix string.
-pub fn create_prefix_with_validated_host<P: AsRef<str>>(
-    protocol: Protocol,
-    host: &Host,
-    path: Option<P>,
-) -> String {
-    match host {
-        Host::Domain(domain) => create_prefix_with_validated_domain(protocol, domain, path),
-        Host::IPv4(ipv4) => create_prefix_with_validated_ipv4(protocol, ipv4, path),
-        Host::IPv6(ipv6) => create_prefix_with_validated_ipv6(protocol, ipv6, path),
-    }
-}
-
-#[cfg(feature = "validator")]
-/// Create a safe URL prefix string.
-pub fn create_prefix_with_validated_http_url(http_url: &HttpUrlLocalableWithProtocol) -> String {
-    let protocol = if http_url.is_https() {
-        Protocol::HTTPS
-    } else {
-        Protocol::HTTP
-    };
-
-    create_prefix_with_validated_host(protocol, http_url.get_host(), http_url.get_path())
-}
-
-#[cfg(feature = "validator")]
-/// Create a safe URL prefix string.
-pub fn create_prefix_with_validated_http_ftp_url(
-    http_ftp_url: &HttpFtpUrlLocalableWithProtocol,
-) -> String {
-    let protocol = if http_ftp_url.is_https() {
-        Protocol::HTTPS
-    } else if http_ftp_url.is_http() {
-        Protocol::HTTP
-    } else {
-        Protocol::FTP
-    };
-
-    create_prefix_with_validated_host(protocol, http_ftp_url.get_host(), http_ftp_url.get_path())
 }
