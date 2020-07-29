@@ -10,7 +10,7 @@ categories = ["no-std", "value-formatting"]
 description = "A library for creating URL prefix strings."
 readme = "README.md"
 license = "MIT"
-include = ["src/**/*", "Cargo.toml", "LICENSE", "README.md"]
+include = ["src/**/*", "Cargo.toml", "README.md", "LICENSE"]
 
 [badges.travis-ci]
 repository = "magiclen/url-prefix"
