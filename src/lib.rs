@@ -58,6 +58,7 @@ use cow_utils::CowUtils;
 macro_rules! impl_protocol {
     ( $($protocol:ident, $name:expr, $port:expr); * $(;)* ) => {
         /// A set of protocols for URLs.
+        #[allow(clippy::upper_case_acronyms)]
         #[derive(Debug, Clone)]
         pub enum Protocol {
             $(
