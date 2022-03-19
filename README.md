@@ -27,16 +27,12 @@ if is_https && port != 443 || !is_https && port != 80 {
 Instead, we can easily use this crate to create URL prefix strings. For examples,
 
 ```rust
-extern crate url_prefix;
-
 let prefix = url_prefix::create_prefix(url_prefix::Protocol::HTTPS, "magiclen.org", None, None);
 
 assert_eq!("https://magiclen.org", prefix);
 ```
 
 ```rust
-extern crate url_prefix;
-
 let prefix = url_prefix::create_prefix(url_prefix::Protocol::HTTPS, "magiclen.org", Some(8100), Some("url-prefix"));
 
 assert_eq!("https://magiclen.org:8100/url-prefix", prefix);

@@ -1,8 +1,8 @@
 [package]
 name = "url-prefix"
-version = "2.0.3"
+version = "2.0.4"
 authors = ["Magic Len <len@magiclen.org>"]
-edition = "2018"
+edition = "2021"
 repository = "https://github.com/magiclen/url-prefix"
 homepage = "https://magiclen.org/url-prefix"
 keywords = ["url", "prefix", "http", "https", "ftp"]

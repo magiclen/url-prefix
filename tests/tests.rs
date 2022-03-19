@@ -1,5 +1,3 @@
-extern crate url_prefix;
-
 use url_prefix::Protocol;
 
 #[test]
