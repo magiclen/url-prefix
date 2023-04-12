@@ -3,6 +3,7 @@ name = "url-prefix"
 version = "2.0.4"
 authors = ["Magic Len <len@magiclen.org>"]
 edition = "2021"
+rust-version = "1.56"
 repository = "https://github.com/magiclen/url-prefix"
 homepage = "https://magiclen.org/url-prefix"
 keywords = ["url", "prefix", "http", "https", "ftp"]

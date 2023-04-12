@@ -42,9 +42,8 @@ assert_eq!("https://magiclen.org:8100/url-prefix", prefix);
 #[macro_use]
 extern crate alloc;
 
-use core::fmt::Write;
-
 use alloc::string::String;
+use core::fmt::Write;
 
 use cow_utils::CowUtils;
 
