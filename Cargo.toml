@@ -9,7 +9,6 @@ homepage = "https://magiclen.org/url-prefix"
 keywords = ["url", "prefix", "http", "https", "ftp"]
 categories = ["no-std", "value-formatting"]
 description = "A library for creating URL prefix strings."
-readme = "README.md"
 license = "MIT"
 include = ["src/**/*", "Cargo.toml", "README.md", "LICENSE"]
 
